@@ -1,0 +1,25 @@
+{
+  "name": "db_ops",
+  "version": "1.0.0",
+  "description": "MongoDB CRUD",
+  "main": "db_ops.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "bin": {
+    "db_ops": "./db_ops.js"
+  },
+  "files": [
+    "db_ops.js",
+    "db_ops_lib.js",
+    "README"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mongodb": "^2.2.31"
+  }
+}
