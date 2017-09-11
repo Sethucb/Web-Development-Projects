@@ -32,6 +32,8 @@ function dbOp(url, op) {
   init(url,function(){
   	doOp(op, function(){
   		// add code to exit DB
+  		console.log('Closing DB');
+  		db.close();
   	});
   });
 }
@@ -67,9 +69,8 @@ function createColl(coll){
 	
 }
 
-function doOp(op){
+function doOp(op, callback){
 	op = JSON.parse(op);
-	// console.log('op is ==',typeof(op));
 	let oper = op.op;
 	let collect = op.collection;
 	let arg = op.args;
@@ -117,25 +118,21 @@ function doOp(op){
 	else if(oper === 'delete'){
 		if(arg === undefined){
 		   		arg = {};
-		}
-			db.collection(collect).remove(arg);
+		}	
+		db.collection(collect).deleteMany(arg);
 	}
 	else if(oper === 'update'){
 		if(arg === undefined){
 		   		arg = {};
 		}
-		// console.log('Inside Update/');
-		// console.log('Fn is ',typeof(fn[0]));
 		let cursor = db.collection(collect).find(arg);
-		// console.log('Cursor is ',cursor);
-		var fun = new Function(fn[0],fn[1]);
+		// var fun = new Function(fn[0],fn[1]);
+		var fun = newMapper(fn[0],fn[1]);
 			cursor.each(function(err, item){
 				if(item){
 					let id = item['_id'];
 					let obj = fun(item);
 					if(obj['_id'] === undefined){
-						console.log('Item is ==',item);
-						console.log('obj is ---',obj);
 						db.collection(collect).update({_id : id}, obj);
 					}
 				}
@@ -144,6 +141,7 @@ function doOp(op){
 	else{
 		console.error('Wrong operation');
 	}
+	callback();
 }
 
 //make main dbOp() function available externally
