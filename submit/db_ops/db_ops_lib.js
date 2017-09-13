@@ -14,6 +14,9 @@ function newMapper(arg, body) {
 //print msg on stderr and exit.
 function error(msg) {
   console.error(msg);
+if(db !== undefined){
+	db.close();	
+}
   process.exit(1);
 }
 
@@ -31,42 +34,41 @@ function dbOp(url, op) {
   //your code goes here
   init(url,function(){
   	doOp(op, function(){
-  		// add code to exit DB
-  		console.log('Closing DB');
-  		db.close();
+  		if(db !== undefined){
+  			db.close();
+  		}
   	});
   });
 }
 
 // conenct to DB and create test collection
 function init(url, callback){
-	// console.log('url is :',url);
 	mongo.connect(url,function(err,data){
 		if(!err){
 			db = data;
 			createColl('test').then(function(){
 				callback();
 			}).catch(function(err){
-				console.error('Error is ',err);
+				error('Error in creating collection. ',err);
 			});
 		}else{
-			console.error('Error in conncting DB');	
+			error('Error in conncting DB. ',err);
 		}
 	});
 }
 
+// create collection using promise
 function createColl(coll){
 	return new Promise(function(resolve,reject){
 		db.createCollection(coll, function(err){
-		if(err){
-			reject(err);
-		}
-		else{
-			resolve();
-		}
-	});
-	})
-	
+			if(err){
+				reject(err);
+			}
+			else{
+				resolve();
+			}
+		});
+	});	
 }
 
 function doOp(op, callback){
@@ -76,31 +78,28 @@ function doOp(op, callback){
 	let arg = op.args;
 	let fn = op.fn;
 	
-	// console.log('op is ',oper,' coll is ',collect,' arg is ',arg.length);
 	if(oper === undefined || collect === undefined){
-		console.error('Please specify operation and collection name');
-		// exit here
+		error('Please specify operation and collection name.');
 	}
 
 	if(oper === 'create'){
 		if(arg === undefined){
-			console.error('arg is mandatory for create operation');
-			// exit here
+			error('arg is mandatory for create operation.');
 		}
 		if(arg.length === 0){
-			console.error('arg must not be empty');
-			//exit here
+			error('arg must not be empty.');
 		}
 		createColl(collect).then(function(){
 			db.collection(collect).insertMany(arg, function(err){
-				if(err)
-					console.error('Error in adding');
-					//exit here
-				else
-					console.log('Documents added');
-			});		
+				if(err){
+					error('Error in adding.');
+				}
+				else{
+					callback();
+				}
+			});
 		}).catch(function(err){
-				console.error('Error in creating collection,Error is : ',err);
+				error('Error in creating collection. ',err);
 			});
 		
 	}
@@ -113,17 +112,25 @@ function doOp(op, callback){
 				if(item){
 					console.log(item);
 				}
+				else{
+					callback();
+				}
 			});
 	}
 	else if(oper === 'delete'){
 		if(arg === undefined){
 		   		arg = {};
 		}	
-		db.collection(collect).deleteMany(arg);
+		db.collection(collect).deleteMany(arg, function(){
+			callback();
+		});
 	}
 	else if(oper === 'update'){
 		if(arg === undefined){
 		   		arg = {};
+		}
+		if(fn === undefined){
+			error('Please include fn for update operation');
 		}
 		let cursor = db.collection(collect).find(arg);
 		// var fun = new Function(fn[0],fn[1]);
@@ -133,15 +140,19 @@ function doOp(op, callback){
 					let id = item['_id'];
 					let obj = fun(item);
 					if(obj['_id'] === undefined){
-						db.collection(collect).update({_id : id}, obj);
+						db.collection(collect).update({_id : id}, obj,function(){
+							callback();
+						});
 					}
+				}
+				else{
+					callback();
 				}
 			});
 	}
 	else{
-		console.error('Wrong operation');
+		console.error('Wrong operation.');
 	}
-	callback();
 }
 
 //make main dbOp() function available externally

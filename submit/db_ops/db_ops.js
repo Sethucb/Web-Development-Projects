@@ -19,7 +19,6 @@ process.argv.shift();              //remove path to nodejs
 process.argv.shift();              //remove program name
 const url = process.argv.shift();  //get db url
 try {
-	// console.log('url is :',url);
   dbOps.dbOp(url, process.argv[0]);
 }
 catch(ex) {
