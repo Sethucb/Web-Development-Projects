@@ -1,0 +1,376 @@
+[
+  {
+    "category": "book",
+    "title": "JavaScript: The Good Parts",
+    "authors": [
+      "Douglas Crockford"
+    ],
+    "edition": "1",
+    "n_pages": 176,
+    "date": {
+      "day": 1,
+      "month": 5,
+      "year": 2008
+    },
+    "publisher": "O'Reilly Media",
+    "isbn-10": "0596517742",
+    "_id": "978-0596517748",
+    "isbn-13": "978-0596517748",
+    "dimensions": {
+      "width": 7.0,
+      "thickness": 0.4,
+      "length": 9.2,
+      "unit": "inches"
+    },
+    "weight": {
+      "value": 1.0,
+      "unit": "1"
+    }
+  },
+  {
+    "category": "book",
+    "title": "JavaScript: The Definitive Guide: Activate Your Web Pages",
+    "authors": [
+      "David Flanagan"
+    ],
+    "edition": "6",
+    "n_pages": 1096,
+    "date": {
+      "day": 13,
+      "month": 5,
+      "year": 2011
+    },
+    "publisher": "O'Reilly Media",
+    "isbn-10": "0596805527",
+    "_id": "978-0596805524",
+    "isbn-13": "978-0596805524",
+    "dimensions": {
+      "width": 7.0,
+      "thickness": 2.4,
+      "length": 9.2,
+      "unit": "inches"
+    },
+    "weight": {
+      "value": 9.0,
+      "unit": "pounds"
+    }
+  },
+  {
+    "category": "book",
+    "title": "Secrets of the JavaScript Ninja",
+    "authors": [
+      "John Resig",
+      "Bear Bibeault",
+      "Josip Maras"
+    ],
+    "edition": "2",
+    "n_pages": 464,
+    "date": {
+      "day": 10,
+      "month": 9,
+      "year": 2016
+    },
+    "publisher": "Manning Publications",
+    "isbn-10": "1617292850",
+    "_id": "978-1617292859",
+    "isbn-13": "978-1617292859",
+    "dimensions": {
+      "width": 7.3,
+      "thickness": 0.9,
+      "length": 9.2,
+      "unit": "inches"
+    },
+    "weight": {
+      "value": 8.0,
+      "unit": "pounds"
+    }
+  },
+  {
+    "category": "book",
+    "title": "JavaScript Patterns: Build Better Applications with Coding and Design Patterns",
+    "authors": [
+      "Stoyan Stefanov"
+    ],
+    "edition": "1",
+    "n_pages": 236,
+    "date": {
+      "day": 1,
+      "month": 10,
+      "year": 2010
+    },
+    "publisher": "O'Reilly Media",
+    "isbn-10": "0596806752",
+    "_id": "978-0596806750",
+    "isbn-13": "978-0596806750",
+    "dimensions": {
+      "width": 7.0,
+      "thickness": 0.6,
+      "length": 9.2,
+      "unit": "inches"
+    },
+    "weight": {
+      "value": 1.0,
+      "unit": "pounds"
+    }
+  },
+  {
+    "category": "book",
+    "title": "You Don't Know JS: Scope & Closures",
+    "authors": [
+      "Kyle Simpson"
+    ],
+    "edition": "1",
+    "n_pages": 98,
+    "date": {
+      "day": 24,
+      "month": 3,
+      "year": 2014
+    },
+    "publisher": "O'Reilly Media",
+    "isbn-10": "1449335586",
+    "_id": "978-1449335588",
+    "isbn-13": "978-1449335588",
+    "dimensions": {
+      "width": 6.0,
+      "thickness": 0.2,
+      "length": 9.0,
+      "unit": "inches"
+    },
+    "weight": {
+      "value": 8.0,
+      "unit": "ounces"
+    }
+  },
+  {
+    "category": "book",
+    "title": "Speaking JavaScript: An In-Depth Guide for Programmers",
+    "authors": [
+      "Axel Rauschmayer"
+    ],
+    "edition": "1",
+    "n_pages": 460,
+    "date": {
+      "day": 24,
+      "month": 3,
+      "year": 2014
+    },
+    "publisher": "O'Reilly Media",
+    "isbn-10": "1449365035",
+    "_id": "978-1449365035",
+    "isbn-13": "978-1449365035",
+    "dimensions": {
+      "width": 7.0,
+      "thickness": 1.0,
+      "length": 9.2,
+      "unit": "inches"
+    },
+    "weight": {
+      "value": 6.0,
+      "unit": "pounds"
+    }
+  },
+  {
+    "category": "book",
+    "title": "Pro JavaScript Techniques",
+    "authors": [
+      "John Paxton",
+      "John Resig",
+      "Russ Ferguson"
+    ],
+    "edition": "2",
+    "n_pages": 204,
+    "date": {
+      "day": 1,
+      "month": 7,
+      "year": 2015
+    },
+    "publisher": "Apress",
+    "isbn-10": "1430263911",
+    "_id": "978-1430263913",
+    "isbn-13": "978-1430263913",
+    "dimensions": {
+      "width": 7.0,
+      "thickness": 0.5,
+      "length": 10.0,
+      "unit": "inches"
+    },
+    "weight": {
+      "value": 1.0,
+      "unit": "pounds"
+    }
+  },
+  {
+    "category": "book",
+    "title": "jQuery in Action",
+    "authors": [
+      "Bear Bibeault",
+      "Yehuda Katz",
+      "Aurelio De Rosa"
+    ],
+    "edition": "3",
+    "n_pages": 504,
+    "date": {
+      "day": 19,
+      "month": 9,
+      "year": 2015
+    },
+    "publisher": "Manning Publications",
+    "isbn-10": "1617292079",
+    "_id": "978-1617292071",
+    "isbn-13": "978-1617292071",
+    "dimensions": {
+      "width": 7.3,
+      "thickness": 1.0,
+      "length": 9.2,
+      "unit": "inches"
+    },
+    "weight": {
+      "value": 2.0,
+      "unit": "pounds"
+    }
+  },
+  {
+    "category": "book",
+    "title": "The Principles of Object-Oriented JavaScript",
+    "authors": [
+      "Nicholas C. Zakas"
+    ],
+    "edition": "1",
+    "n_pages": 120,
+    "date": {
+      "day": 14,
+      "month": 2,
+      "year": 2014
+    },
+    "publisher": "No Starch Press",
+    "isbn-10": "1593275404",
+    "_id": "978-1593275402",
+    "isbn-13": "978-1593275402",
+    "dimensions": {
+      "width": 7.0,
+      "thickness": 0.3,
+      "length": 9.2,
+      "unit": "inches"
+    },
+    "weight": {
+      "value": 8.0,
+      "unit": "ounces"
+    }
+  },
+  {
+    "category": "book",
+    "title": "Understanding ECMAScript 6: The Definitive Guide for JavaScript Developers",
+    "authors": [
+      "Nicholas C. Zakas"
+    ],
+    "edition": "1",
+    "n_pages": 352,
+    "date": {
+      "day": 16,
+      "month": 8,
+      "year": 2016
+    },
+    "publisher": "No Starch Press",
+    "isbn-10": "1593277571",
+    "_id": "978-1593277574",
+    "isbn-13": "978-1593277574",
+    "dimensions": {
+      "width": 7.0,
+      "thickness": 0.8,
+      "length": 9.2,
+      "unit": "inches"
+    },
+    "weight": {
+      "value": 6.0,
+      "unit": "pounds"
+    }
+  },
+  {
+    "category": "book",
+    "title": "Effective JavaScript: 68 Specific Ways to Harness the Power of JavaScript",
+    "authors": [
+      "David Herman"
+    ],
+    "edition": "1",
+    "n_pages": 240,
+    "date": {
+      "day": 6,
+      "month": 12,
+      "year": 2012
+    },
+    "publisher": "Addison-Wesley Professional",
+    "isbn-10": "0321812182",
+    "_id": "978-0321812186",
+    "isbn-13": "978-0321812186",
+    "dimensions": {
+      "width": 7.0,
+      "thickness": 0.7,
+      "length": 9.0,
+      "unit": "inches"
+    },
+    "weight": {
+      "value": 1.0,
+      "unit": "5"
+    }
+  },
+  {
+    "category": "book",
+    "title": "RESTful Web Services Paperback",
+    "authors": [
+      "Leonard Richardson",
+      "Sam Ruby",
+      "David Heinemeier Hansson"
+    ],
+    "edition": "1",
+    "n_pages": 454,
+    "date": {
+      "day": 18,
+      "month": 5,
+      "year": 2007
+    },
+    "publisher": "O'Reilly Media",
+    "isbn-10": "0596529260",
+    "_id": "978-0596529260",
+    "isbn-13": "978-0596529260",
+    "dimensions": {
+      "width": 7.0,
+      "thickness": 0.9,
+      "length": 9.2,
+      "unit": "inches"
+    },
+    "weight": {
+      "value": 4.0,
+      "unit": "pounds"
+    }
+  },
+  {
+    "category": "book",
+    "title": "RESTful Web APIs: Services for a Changing World",
+    "authors": [
+      "Leonard Richardson",
+      "Mike Amundsen",
+      "Sam Ruby"
+    ],
+    "edition": "1",
+    "n_pages": 406,
+    "date": {
+      "day": 30,
+      "month": 9,
+      "year": 2013
+    },
+    "publisher": "O'Reilly Media",
+    "isbn-10": "1449358063",
+    "_id": "978-1449358068",
+    "isbn-13": "978-1449358068",
+    "dimensions": {
+      "width": 7.0,
+      "thickness": 0.8,
+      "length": 9.2,
+      "unit": "inches"
+    },
+    "weight": {
+      "value": 8.0,
+      "unit": "pounds"
+    }
+  }
+]
