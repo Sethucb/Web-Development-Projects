@@ -9,7 +9,7 @@ const users = require('./model/users');
 const model = require('./model/model');
 const server = require('./server/server');
 
-const DB_URL = 'mongodb://localhost:27017/storeUser';
+const DB_URL = 'mongodb://localhost:27017/users';
 
 function getPort(argv){
 	let port = null;
