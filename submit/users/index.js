@@ -27,6 +27,10 @@ mongo.connect(DB_URL).
 	then(function(db){
 		const model1 = new model.Model(db);
 		server.serve(port,model1);
-		//db.close();
+		process.on('SIGINT',() => {
+			console.log('Closing DB');
+			db.close();
+			process.exit();
+		});
 	}).
 	catch((e) => console.error(e));
