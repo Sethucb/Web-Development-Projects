@@ -27,7 +27,6 @@ Users.prototype.getUser = function(id){
 	const searchSpec = { id: id };
 	return this.users.find(searchSpec).toArray().
 		then(function(users){
-			// console.log('USer is ',users);
 			return new Promise(function(resolve,reject){
 				if(users.length === 1){
 					resolve(users[0]);

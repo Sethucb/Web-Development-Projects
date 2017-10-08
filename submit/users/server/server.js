@@ -49,7 +49,6 @@ function addUser(app){
 		let newUser = request.body;
 		const id = request.params.id;
 		newUser.id = id;
-		// console.log('bdy is ',newUser);
 		if(typeof newUser.id === 'undefined'){
 			response.sendStatus(BAD_REQUEST);
 		}
