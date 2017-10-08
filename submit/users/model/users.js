@@ -4,7 +4,6 @@ const ObjectID = require('mongodb').ObjectID;
 
 const USERS = 'users';
 const DEFAULT_USERS = './userEntries';
-// const DEFAULT_INDEX = {};
 
 function Users(db){
 	this.db = db;
@@ -12,20 +11,20 @@ function Users(db){
 }
 
 Users.prototype.addUser = function(newUser){
-	// let id = newUser.id;
 	return this.users.insertOne(newUser).
 		then(function(result){
-			// return Promise.resolve(id);
 			return new Promise(function(resolve){
-				// console.log('id is ===',id);
 				resolve();
 			});
+		}).
+		catch(function(err){
+			console.error(err);
+			reject('Cannot add User');
 		});
 }
 
 Users.prototype.getUser = function(id){
 	const searchSpec = { id: id };
-	// console.log('searchSpec is +++ ',searchSpec);
 	return this.users.find(searchSpec).toArray().
 		then(function(users){
 			// console.log('USer is ',users);
@@ -79,7 +78,6 @@ function initUsers(db){
 			if(err !== null){
 				reject(err);
 			}
-			// collection.createIndex(DEFAULT_INDEX);
 			collection.insertMany(users,function(err,result){
 				if(err !== null){
 					reject(err);
