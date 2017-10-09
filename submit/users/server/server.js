@@ -33,6 +33,7 @@ function serve(port,model){
 	});
 
 	process.on('uncaughtException',function(err){
+		serv.close();
 		model.users.db.close();
 		console.error(err.stack);
 		process.exit(1);
