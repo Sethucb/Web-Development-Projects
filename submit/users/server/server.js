@@ -12,6 +12,7 @@ const SEE_OTHER = 303;
 const CREATED = 201;
 const SERVER_ERROR = 500;
 
+
 function serve(port,model){
 	const app = express();
 	app.use(bodyParser.urlencoded({ extended: false }));
@@ -20,9 +21,23 @@ function serve(port,model){
 	app.locals.port = port;
 	app.locals.model = model;
 	
-	app.listen(port,function(){
+	const serv = app.listen(port,function(){
 		console.log(`listening on port ${port}`);
 	});
+
+	process.on('SIGINT',() => {
+			serv.close();
+			console.log('Closing DB');
+			model.users.db.close();
+			process.exit();
+	});
+
+	process.on('uncaughtException',function(err){
+		model.users.db.close();
+		console.error(err.stack);
+		process.exit(1);
+	});
+
 	app.use(function(err, req, res, next){
   		console.error('Badly formed JSON string');
   		console.error(err.stack);
