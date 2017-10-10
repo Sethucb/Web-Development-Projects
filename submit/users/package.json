@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.1",
-    "mocha": "^3.5.3"
+    "mocha": "^3.5.3",
+    "mongod": "^2.0.0"
   }
 }
