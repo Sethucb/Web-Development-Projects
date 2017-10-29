@@ -1,0 +1,17 @@
+[
+	{
+		"id":"123",
+		"name":"Arun",
+		"gen": "male"
+	},
+	{
+		"id":"1235",
+		"name":"Bala",
+		"gen":"femal"
+	},
+	{
+		"id":"422",
+		"name":"ganesh",
+		"gen":"male"
+	}
+]

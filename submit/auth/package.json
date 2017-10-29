@@ -9,6 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^0.8.6",
+    "express": "^4.16.2",
+    "jsonwebtoken": "^8.1.0",
+    "level": "^2.0.0",
     "minimist": "^1.2.0"
   }
 }
