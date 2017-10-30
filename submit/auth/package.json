@@ -11,6 +11,8 @@
   "dependencies": {
     "bcrypt": "^1.0.3",
     "express": "^4.16.2",
+    "mocha": "^3.5.3",
+    "mongod": "^2.0.0",
     "jsonwebtoken": "^8.1.0",
     "level": "^2.0.0",
     "minimist": "^1.2.0"
