@@ -29,7 +29,7 @@ Users.prototype.addUser = function(newUser){
 		catch(function(err){
 			console.error(err);
 			reject('Cannot add User');
-		});
+	});
 }
 
 Users.prototype.getUser = function(id){

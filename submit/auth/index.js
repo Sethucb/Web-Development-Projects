@@ -1,4 +1,4 @@
-#!/usr/bin/env nodejs
+#!/usr/bin/env node
 
 'use strict';
 
@@ -17,7 +17,6 @@ if(typeof initObj !== 'object'){
 	console.error('Undefined command options');
 	process.exit(1);
 }
-console.log('obj is ++ ',initObj);
 
 mongo.connect(DB_URL).
 	then((db) => users.initUsers(db))

@@ -10,13 +10,13 @@ const fs = require('fs');
 const path = require('path');
 
 const OK = 200;
-const MOVED_PERMANENTLY = 301;
-const BAD_REQUEST = 400;
-const NOT_FOUND = 404;
-const NO_CONTENT = 204;
-const SEE_OTHER = 303;
 const CREATED = 201;
+const NO_CONTENT = 204;
+const MOVED_PERMANENTLY = 301;
+const SEE_OTHER = 303;
+const BAD_REQUEST = 400;
 const UNAUTHORIZED = 401;
+const NOT_FOUND = 404;
 const SERVER_ERROR = 500;
 
 
@@ -27,19 +27,19 @@ function serve(initObj,model){
 	app.use(bodyParser.json());
 	
 	const port = initObj.port;
-	// const KEY_PATH = initObj.sslDir + '/key.txt';
-	const KEY_PATH = path.join(initObj.sslDir,'key.txt');
-	// const CERT_PATH = initObj.sslDir + 'cert.pem';
-	console.log('Fir is ',KEY_PATH);
-	https.createServer({
-	  key: fs.readFileSync(KEY_PATH)
-	  // cert: fs.readFileSync(CERT_PATH),
+
+	const KEY_PATH = path.join(initObj.sslDir,'key.pem');
+	const CERT_PATH = path.join(initObj.sslDir ,'cert.pem');
+
+	const serv = https.createServer({
+	  key: fs.readFileSync(KEY_PATH),
+	  cert: fs.readFileSync(CERT_PATH)
 	}, app);
-	// .listen(PORT);
+
 	app.locals.port = port;
 	app.locals.model = model;
 	
-	const serv = app.listen(port,function(){
+	serv.listen(port,function(){
 		console.log(`listening on port ${port}`);
 	});
 
@@ -57,14 +57,12 @@ function serve(initObj,model){
 		process.exit(1);
 	});
 
-	console.log('Tim is ',initObj.authTimeout);
 	app.set('authTimeout',initObj.authTimeout);
-	// app.set('sslDir',initObj.sslDir);
+
 	app.use(function(err, req, res, next){
   		console.error('Badly formed JSON string');
   		console.error(err.stack);
   		res.sendStatus(SERVER_ERROR);
-  		// next();
 	});	
 	setupRoutes(app);
 }
@@ -83,13 +81,8 @@ function requestUrl(req) {
 function registerUser(app){
 	return function(request,response){
 		const id = request.params.id;
-		// if(Object.keys(request.query).length === 0){
-		// 	response.sendStatus(BAD_REQUEST);
-		// 	return;
-		// }
 		const pw = request.query.pw;
 		let newUser = request.body;
-		console.log('id is ',id,' ps is ',pw);
 		if(typeof id === 'undefined' || typeof pw === 'undefined' || pw.length === 0){
 			response.sendStatus(BAD_REQUEST);
 		}
@@ -120,7 +113,6 @@ function registerUser(app){
 						    });						
 					}).
 					catch(function(err){
-						console.log('Err s ',err);
 						response.sendStatus(SERVER_ERROR);
 					});
 			});				
@@ -132,7 +124,6 @@ function loginUser(app){
 	return function(request,response){
 		const id = request.params.id;
 		let obj = request.body;
-		console.log('is is ',id,' pw is ',obj);
 		if(id === undefined){
 			response.sendStatus(BAD_REQUEST);
 			return;
@@ -148,9 +139,7 @@ function loginUser(app){
 				return;
 			}
 			let pwd = obj.pw;
-			// console.log('nw has is ',hashVal, '++ db isns ', user.pwd, '--');
 			if(bcrypt.compareSync(pwd,user.pwd)){
-				console.log('Correct passs');
 				delete user.pwd;
 				delete user._id;
 				const token = jwt.sign(user,'mySecret',{
@@ -162,7 +151,6 @@ function loginUser(app){
 				});
 			}
 			else{				
-				console.log('Wrong passs');
 				response.status(UNAUTHORIZED).json({
 					status: "ERROR_UNAUTHORIZED",
 		  			info: new String("/users/" + id + "/auth requires a valid 'pw' password query parameter")
@@ -170,7 +158,6 @@ function loginUser(app){
 			}
 		}).
 		catch(function(err){
-			// console.error('erro i ',err);
 			response.status(NOT_FOUND).json({
 				status: 'ERROR_NOT_FOUND',
 	  			info: new String('user ' + id +' not found')
@@ -182,7 +169,6 @@ function loginUser(app){
 function getUser(app){
 	return function(request,response){
 		const id = request.params.id;
-		console.log('is is ',id);
 		if(id === undefined){
 			response.sendStatus(BAD_REQUEST);
 			return;
@@ -202,14 +188,12 @@ function getUser(app){
 				const bearerToken = bearer[1];
 				jwt.verify(bearerToken,'mySecret',function(err,data){
 					if(err){
-						console.log('XXXXXX token');
 						response.status(UNAUTHORIZED).json({
 							status: "ERROR_UNAUTHORIZED",
 				  			info: new String("/users/" + id + " requires a bearer authorization header")
 						});
 					}
 					else{
-						// delete data.iat;
 						response.status(OK).json(data);
 					}
 				});
