@@ -9,11 +9,11 @@
 	<form method="POST" action="">
 		<label>
 			<span class="label">Email &nbsp;</span>
-			<input type="email" name="mail" value="{{user_mail}}" class="control"></br>
+			<input type="email" name="mail" value="{{user_mail}}" class="control">
 		</label></br>
 		<label>
 			<span class="label">Password &nbsp;</span>
-			<input type="password" name="pwd" value="" class="control"></br>
+			<input type="password" name="pwd" value="" class="control">
 		</label></br>
 		<input type="submit" name="submit" value="Login" class="control">
 	</form>

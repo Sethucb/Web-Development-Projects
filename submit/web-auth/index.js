@@ -88,7 +88,60 @@ function registerPage(app){
 
 function registration(app){
 	return function(req,res){
-		res.send('registration overrrr');
+		const isDisplay = (typeof req.body.submit === 'undefined');
+	    if (isDisplay) { //simply render login page
+	      res.redirect('/register');
+	    }
+	    const fname = req.body.fname;
+	    const lname = req.body.lname;
+	    const mail = req.body.mail;
+	    const pwd = req.body.pwd;
+	    const pwd_confirm = req.body.pwd_confirm;
+	    const reg_error = {};
+	    if(fname === undefined || fname.trim().length === 0){
+	    	reg_error.fname_Error = 'Please provide first name';
+	    }
+	    else{
+	    	// console.log('fame is=',fname,';');
+	    	reg_error.user_fname = fname;
+	    }
+	    if(lname === undefined || lname.trim().length === 0){
+	    	reg_error.lname_Error = 'Please provide last name';	
+	    }
+	    else{
+	    	reg_error.user_lname = lname;
+	    }
+	    if(mail === undefined || mail.trim().length === 0){
+	    	reg_error.mail_Error = 'Please provide a mail';
+	    }
+	    else{
+	    	const mail_reg = mail.match(/^[\S]+@[\S]+\.[\S]{2,}$/);
+	    	if(!mail_reg){
+	    		reg_error.mail_Error = 'Please provide a valid mail';		
+	    	}
+	    	else{
+	    		reg_error.user_mail = mail;
+	    	}
+	    }
+	    if(pwd === undefined || pwd.trim().length === 0){
+	    	reg_error.pwd_Error = 'Please provide a password';
+	    }
+	    else{
+	    	const pwd_reg = pwd.match(/(?=\S*\d)[\S\d]{8,}/);
+	    	if(!pwd_reg){
+	    		reg_error.pwd_Error = 'Please provide a valid password';
+	    	}
+	    }
+	    if(pwd_confirm === undefined || pwd_confirm.trim().length === 0){
+	    	reg_error.pwd_conf_Error = 'Please re-enter the valid password';
+	    }
+	    else{
+	    	if(pwd.trim() !== pwd_confirm.trim()){
+	    		reg_error.pwd_conf_Error = 'Please provide the password same as above';
+	    	}
+	    }
+	    res.send(doMustache(app,'register',reg_error));
+		// res.send('registration overrrr');
 	}
 }
 

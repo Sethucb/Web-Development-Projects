@@ -1,6 +1,7 @@
 .label {
   font-weight: bold;
   padding: 1ex;
+  display: inline-block;
 }
 
 .label::after {
