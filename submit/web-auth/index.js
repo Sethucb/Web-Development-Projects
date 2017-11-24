@@ -28,6 +28,7 @@ if(typeof initObj !== 'object'){
 
 const PORT = initObj.port;
 const user = new userMod(initObj.ws_url);
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
 // console.log('Init is ',initObj);
 // console.log('usr is ', user.WS_URL);
 
@@ -41,6 +42,7 @@ function setupRoutes(app) {
   app.post('/login',login(app));
   app.get('/register',registerPage(app));
   app.post('/register',registration(app));
+  app.get('/account',accountPage(app));
 }
 
 function loginPage(app){
@@ -98,18 +100,21 @@ function registration(app){
 	    const pwd = req.body.pwd;
 	    const pwd_confirm = req.body.pwd_confirm;
 	    const reg_error = {};
+	    let userInfo = {};
 	    if(fname === undefined || fname.trim().length === 0){
 	    	reg_error.fname_Error = 'Please provide first name';
 	    }
 	    else{
 	    	// console.log('fame is=',fname,';');
 	    	reg_error.user_fname = fname;
+	    	userInfo.firstName = fname;
 	    }
 	    if(lname === undefined || lname.trim().length === 0){
 	    	reg_error.lname_Error = 'Please provide last name';	
 	    }
 	    else{
 	    	reg_error.user_lname = lname;
+	    	userInfo.lastName = lname;
 	    }
 	    if(mail === undefined || mail.trim().length === 0){
 	    	reg_error.mail_Error = 'Please provide a mail';
@@ -121,6 +126,7 @@ function registration(app){
 	    	}
 	    	else{
 	    		reg_error.user_mail = mail;
+	    		userInfo.mail = mail;
 	    	}
 	    }
 	    if(pwd === undefined || pwd.trim().length === 0){
@@ -131,17 +137,54 @@ function registration(app){
 	    	if(!pwd_reg){
 	    		reg_error.pwd_Error = 'Please provide a valid password';
 	    	}
+	    	// else{
+	    	// 	userInfo.password = pwd;
+	    	// }
 	    }
 	    if(pwd_confirm === undefined || pwd_confirm.trim().length === 0){
 	    	reg_error.pwd_conf_Error = 'Please re-enter the valid password';
 	    }
 	    else{
 	    	if(pwd.trim() !== pwd_confirm.trim()){
-	    		reg_error.pwd_conf_Error = 'Please provide the password same as above';
+	    		reg_error.pwd_conf_Error = 'The passwords didn\'t match';
 	    	}
 	    }
-	    res.send(doMustache(app,'register',reg_error));
+	    // console.log('err is ',reg_error);
+	    if(Object.keys(reg_error).length === 3 && reg_error.hasOwnProperty('user_fname') && reg_error.hasOwnProperty('user_lname') && reg_error.hasOwnProperty('user_mail')){
+	    	// console.log('No error',userInfo);
+	    	app.user.registerUser(userInfo,pwd).
+	    	then((data) => {
+	    		console.log('DATA is ',data);
+	    		if(data.status === 'CREATED'){
+	    			console.log('NEW');
+	    			// Set auth token cookie,redirect to account pge
+	    			res.redirect('/account');
+	    		}
+	    		else if(data.status === 'EXISTS'){
+					console.log('OLD');
+					res.send(doMustache(app,'register',{
+						existing_Error : 'User with the e-mail already exists.Please use new mail-id'
+					}));
+	    		}
+	    		else{
+	    			throw data;
+	    		}
+	    	}).
+	    	catch((err) => {
+	    		console.log('erris',err);
+	    	});
+	    }
+	    else{
+	    	res.send(doMustache(app,'register',reg_error));
+	    }
+	    
 		// res.send('registration overrrr');
+	}
+}
+
+function accountPage(app){
+	return function(req,res){
+		res.send('Hello user');
 	}
 }
 

@@ -29,8 +29,9 @@ function getOptions(argv) {
   const opts = minimist(argv.slice(2));
   if (opts._.length !== 2) usage(argv[1]);
   // opts._[1] match url using regex
-  const reg = new RegExp('^(https?:\/\/)?([a-z\.\d]+)\.([a-z]{2,6})[\/\w \.-]*\/?$');
-  if(!reg.test(opts._[1])){
+  // console.log('url is=',opts._[1],';');
+  let result = /(https?:\/\/)?(\w+(\.\w+)*|\d+(\.\d+){3}|localhost)(:[\d]+)?/.test(opts._[1]);
+  if(!result){
     usage(argv[1]);
   }
   for (let k of Object.keys(opts)) {

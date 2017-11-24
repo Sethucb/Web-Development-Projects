@@ -35,6 +35,7 @@
 		<input type="submit" name="submit" value="Register" class="control">
 	</form>
 	<br>
+	{{#existing_Error}}<div class="error">{{existing_Error}}</div><br>{{/existing_Error}}
 	<a href="/login">Click here to go to Login page</a><br>
 	{{#logError}}<br><span class="error">{{logError}}</span>{{/logError}}
 </body>
