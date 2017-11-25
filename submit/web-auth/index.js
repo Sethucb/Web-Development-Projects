@@ -8,7 +8,7 @@ const process = require('process');
 
 //external dependencies
 const express = require('express');
-// const cookieParser = require('cookie-parser');
+const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const mustache = require('mustache');
 
@@ -18,6 +18,7 @@ const userMod = require('./user/user');
 
 const STATIC_DIR = 'statics';
 const TEMPLATES_DIR = 'templates';
+// const USER_COOKIE = 'userid';
 
 const initObj = options.options;
 
@@ -43,6 +44,7 @@ function setupRoutes(app) {
   app.get('/register',registerPage(app));
   app.post('/register',registration(app));
   app.get('/account',accountPage(app));
+  app.get('/logout',logout(app));
 }
 
 function loginPage(app){
@@ -75,8 +77,35 @@ function login(app){
 	    	else{
 	    		// Check valid user??
 	    		console.log('Check valid user');
+	    		app.user.loginUser(email,pass).
+	    		then((data) => {
+	    			if(data.status === 'OK'){
+	    				console.log('OK');
+	    				res.cookie(email,data.authToken);
+	    				res.redirect('/account');
+	    			}
+	    			else if(data.status === 'ERROR_NOT_FOUND'){
+	    				console.log('ERROR_NOT_FOUND');
+	    				res.send(doMustache(app,'login',{
+	    						logError: 'Invalid User',
+	    						user_mail:email}));	
+	    			}
+	    			else if(data.status === 'ERROR_UNAUTHORIZED'){
+	    				console.log('ERROR_UNAUTHORIZED');
+	    				res.send(doMustache(app,'login',{
+	    						logError: 'Unauthorized User',
+	    						user_mail:email}));	
+	    			}
+	    			else{
+	    				throw data;
+	    			}
+	    		}).
+	    		catch((err) => {
+
+	    		});
+	    		
 	    		// if invalid user
-	    		res.send(doMustache(app,'login',{user_mail:email}));
+	    		// res.send(doMustache(app,'login',{user_mail:email}));
 	    	}
 	    }
 	}
@@ -158,6 +187,8 @@ function registration(app){
 	    		if(data.status === 'CREATED'){
 	    			console.log('NEW');
 	    			// Set auth token cookie,redirect to account pge
+	    			// console.log('MailID-',userInfo.mail);
+	    			res.cookie(userInfo.mail,data.authToken);
 	    			res.redirect('/account');
 	    		}
 	    		else if(data.status === 'EXISTS'){
@@ -172,22 +203,75 @@ function registration(app){
 	    	}).
 	    	catch((err) => {
 	    		console.log('erris',err);
+	    		process.exit(1);
 	    	});
 	    }
 	    else{
 	    	res.send(doMustache(app,'register',reg_error));
 	    }
-	    
 		// res.send('registration overrrr');
 	}
 }
 
 function accountPage(app){
 	return function(req,res){
-		res.send('Hello user');
+		// console.log('Reqk is ',req.cookies[USER_COOKIE]);
+		const user_Cookie = req.cookies;
+		const email = Object.keys(user_Cookie)[0];
+		const token = user_Cookie[email];
+		// console.log('Reqk is ',email);
+		// console.log('tok is ',user_Cookie[email]);
+		app.user.getUser(email,token).
+		then((data) => {
+			console.log('ACCDATA is ',data);
+			if(data.hasOwnProperty('status')){
+				if(data.status === 'ERROR_UNAUTHORIZED'){
+					console.log('ERROR_UNAUTHORIZED');
+					// send unauth res to register/login page
+				}
+				else if(data.status === 'ERROR_NOT_FOUND'){
+					console.log('ERROR_NOT_FOUND');
+					// send not found res to register/login page
+				}
+			}
+			else if(data === 'Server error'){
+				throw data;
+			}
+			else{
+				const first = Object.keys(data)[0];
+				const last = Object.keys(data)[1];
+				console.log('FFirst IS ',first,' Dat is ',data[first]);
+				res.cookie(email,token);
+				res.send(doMustache(app,'account',{
+					firstName : data[first],
+					lastName : data[last]
+				}));
+			}
+		}).
+		catch((err) => {
+			console.log('erris',err);
+	    	process.exit(1);
+		});
+		// res.send('Hello user');
 	}
 }
 
+function logout(app){
+	return function(req,res){
+		console.log('LOGGING PUTTT');
+		// clearCookie()
+		const cookies = req.cookies;
+		console.log('cookies are ',cookies);
+		for(let cookie in cookies){
+			if(!cookies.hasOwnProperty(cookie)){
+				continue;
+			}
+			console.log('cook Name is ',cookie);
+			res.cookie(cookie,'',{expires: new Date(0)});
+		}
+		res.redirect('/login');
+	}
+}
 
 /************************ Utility functions ****************************/
 
@@ -223,7 +307,7 @@ function setupTemplates(app) {
 function setup() {
   process.chdir(__dirname);
   const app = express();
-  // app.use(cookieParser());
+  app.use(cookieParser());
   setupTemplates(app);
   app.user = user;
   app.use(express.static(STATIC_DIR));
