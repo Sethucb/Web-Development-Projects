@@ -11,10 +11,128 @@
 	<div id="app"></div>
 	<script type="text/babel">
 
-      ReactDOM.render(
-        <h1>Hello, world!</h1>,
-        document.getElementById('app')
-      );
+	class LoginForm extends React.Component{
+		constructor(props){
+			super(props);
+			this.state = {
+					email:'',
+					pwd:'',
+					mail_err:'',
+					pwd_err:''
+			};
+
+			this.handleMail = this.handleMail.bind(this);
+			this.handlePwd = this.handlePwd.bind(this);
+			this.handleSubmit = this.handleSubmit.bind(this);
+		}
+
+		handleMail(event){
+				const mail = event.target.value;
+				if(mail.length === 0){
+					this.setState({mail_err:'Please provide a email'});
+				}
+				else{
+					console.log(mail);
+					const mailReg = (/^[\S]+@[\S]+\.[\S]{2,}$/).test(mail);
+					if(mailReg){
+						this.setState({email:mail,mail_err:''});
+					}
+					else{
+						this.setState({mail_err:'Please enter a valid email'});	
+					}
+				}
+		}
+
+		handlePwd(e){
+			const pass = e.target.value;
+			if(pass.length === 0){
+				this.setState({pwd_err:'Please provide a password'});
+			}
+			else{
+				const pwdReg = (/(?=\S*\d)[\S\d]{8,}/).test(pass);
+				if(pwdReg){
+					this.setState({pwd:pass,pwd_err:''});
+				}
+				else{
+					this.setState({pwd_err:'Please enter a valid password'});
+				}
+			}
+		}
+
+		handleSubmit(e){
+			alert('A name : ' + this.state.email+ ' with pass ' + this.state.pwd);
+	  		event.preventDefault();
+		}
+
+		render(){
+			return (
+				<form onSubmit={this.handleSubmit}>
+					<label> Email &nbsp;
+						<input type="mail" onBlur={this.handleMail} />
+					</label> <span style={{color: 'red'}}>{this.state.mail_err}</span> <br/> <br/>
+					<label> Password &nbsp;
+						<input type="password" onBlur={this.handlePwd}/>
+						<span style={{color: 'red'}}>{this.state.pwd_err}</span>
+					</label> <br/> <br/>
+					<input type="submit" value="Login"/>	
+				</form>
+			);
+		}
+	}
+
+	class RegisterForm extends React.Component{
+		constructor(props){
+			super(props);
+			this.state={
+		      first_name:'',
+		      last_name:'',
+		      email:'',
+		      password:''
+		    }
+		   this.handleFirst = this.handleFirst.bind(this);
+		}
+
+		handleFirst(event){
+			if(event.target.value.length === 0){
+				console.log('EMpty');
+			}
+			else{
+				console.log('NOTTT EMpty');
+				this.setState({first_name:event.target.value});
+			}
+		}
+
+		render(){
+			return (
+				<form>
+					<label>
+						First Name &nbsp;
+						<input type="text" name="fname" onBlur={this.handleFirst}/>
+					</label> <span style={{color: 'red'}}>{this.state.mail_err}</span><br/> <br/>
+					<label>
+						Last Name &nbsp;
+						<input type="text" name="lname" />
+					</label> <span style={{color: 'red'}}>{this.state.mail_err}</span><br/> <br/>
+					<label> Email &nbsp;
+						<input type="email" name="mail"/>
+					</label> <span style={{color: 'red'}}>{this.state.mail_err}</span> <br/> <br/>
+					<label> Password &nbsp;
+						<input type="password" name="pwd"/>
+					</label> <span style={{color: 'red'}}>{this.state.mail_err}</span> <br/> <br/>
+					<label>
+					Confirm Password &nbsp;
+					<input type="password" name="pwd_confirm" />
+					</label> <span style={{color: 'red'}}>{this.state.mail_err}</span> <br/> <br/>
+					<input type="submit" value="Register"/>	
+				</form>
+				);
+		}
+	}
+
+	ReactDOM.render(
+		<RegisterForm />,
+		document.getElementById('app')
+		);
 
     </script>
 </body>
