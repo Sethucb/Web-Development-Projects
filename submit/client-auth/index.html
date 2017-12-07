@@ -6,6 +6,14 @@
     <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script type="text/javascript">
+    	let match = RegExp('[?&]' + 'ws-url' + '=([^&]*)').exec(window.location.search);
+    	let wsUrl = match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+    	console.log('URI is ',wsUrl);
+    
+    </script>
 </head>
 <body>
 	<div id="app"></div>
@@ -18,7 +26,10 @@
 					email:'',
 					pwd:'',
 					mail_err:'',
-					pwd_err:''
+					pwd_err:'',
+					log_in:false,
+					user:{},
+					log_err:''
 			};
 
 			this.handleMail = this.handleMail.bind(this);
@@ -35,10 +46,10 @@
 					console.log(mail);
 					const mailReg = (/^[\S]+@[\S]+\.[\S]{2,}$/).test(mail);
 					if(mailReg){
-						this.setState({email:mail,mail_err:''});
+						this.setState({email:mail.trim(),mail_err:''});
 					}
 					else{
-						this.setState({mail_err:'Please enter a valid email'});	
+						this.setState({email:mail.trim(),mail_err:'Please enter a valid email'});	
 					}
 				}
 		}
@@ -54,28 +65,96 @@
 					this.setState({pwd:pass,pwd_err:''});
 				}
 				else{
-					this.setState({pwd_err:'Please enter a valid password'});
+					this.setState({pwd:pass,pwd_err:'Please enter a valid password'});
 				}
 			}
 		}
 
 		handleSubmit(e){
-			alert('A name : ' + this.state.email+ ' with pass ' + this.state.pwd);
-	  		event.preventDefault();
+			let flag = true;
+			if(this.state.mail_err.length !== 0 || this.state.pwd_err.length !== 0){
+				flag = false;
+			}
+			if(this.state.email.length !== 0 && this.state.pwd.length !== 0 && flag){
+				axios.put(wsUrl+'/users/'+this.state.email+'/auth',{pw:this.state.pwd}).
+					then((response) => {
+						console.log('Res is ',response.data);
+						try{
+							localStorage.setItem(this.state.email,response.data.authToken);
+							this.setState({log_in:true});
+							const token = localStorage.getItem(this.state.email);
+							let config = {
+								  headers: {'Authorization': new String('Bearer '+token)}
+								};
+							axios.get(wsUrl+'/users/'+this.state.email,config).
+								then((response) => {
+									let data = response.data;
+									console.log('Get is ',data);
+									const user = {};
+									let fname = Object.keys(data)[0];
+									let lname = Object.keys(data)[1];
+									user.fname = data[fname];
+									user.lname = data[lname];
+									console.log('USR is ',user);
+									this.setState({user:user});
+								}).
+									catch((err) => {
+										console.log('Err is ',err);
+									});
+						}catch(err){
+							console.log('Err is ',err);
+						}
+					}).
+					catch((err) => {
+						err = err.toString();
+						if(err.includes('401')){
+							console.log('404040401010101');
+							this.setState({log_err:'Unauthorised user'});
+						}
+						else if(err.includes('404')){
+							console.log('NoTT FOUND');
+							this.setState({log_err:'Invalid user'});
+						}
+					});
+			}
+			else{
+				this.setState({log_err:'Please enter inputs'});
+			}
+	  		e.preventDefault();
 		}
 
+		logout = (e) => {
+			localStorage.removeItem(this.state.email);
+		}
+
+
 		render(){
+		const ifLogged = this.state.log_in;
+		const ifNotLogged = !ifLogged;
 			return (
-				<form onSubmit={this.handleSubmit}>
-					<label> Email &nbsp;
-						<input type="mail" onBlur={this.handleMail} />
-					</label> <span style={{color: 'red'}}>{this.state.mail_err}</span> <br/> <br/>
-					<label> Password &nbsp;
-						<input type="password" onBlur={this.handlePwd}/>
-						<span style={{color: 'red'}}>{this.state.pwd_err}</span>
-					</label> <br/> <br/>
-					<input type="submit" value="Login"/>	
-				</form>
+				<div>
+					{ifNotLogged &&
+					<form onSubmit={this.handleSubmit}>
+						<label> Email &nbsp;
+							<input type="mail" onBlur={this.handleMail} />
+						</label> <span style={{color: 'red'}}>{this.state.mail_err}</span> <br/> <br/>
+						<label> Password &nbsp;
+							<input type="password" onBlur={this.handlePwd}/>
+							<span style={{color: 'red'}}>{this.state.pwd_err}</span>
+						</label> <br/> <br/>
+						<input type="submit" value="Login"/> <br/> <br/>
+						<a href="" >Click here to go to Register Page</a>
+						<div style={{color: 'red'}}>{this.state.log_err}</div>
+					</form>
+					}
+					{ifLogged &&
+						<div>
+						<p > First Name : {this.state.user.fname}</p> &nbsp; 
+						<p > Last Name : {this.state.user.lname}</p> &nbsp; 
+						<a href="" onClick={this.logout}>Logout</a>
+						</div>
+					}
+				</div>
 			);
 		}
 	}
@@ -87,50 +166,205 @@
 		      first_name:'',
 		      last_name:'',
 		      email:'',
-		      password:''
+		      password:'',
+		      conf_pass:'',
+		      err :{
+		      	err_fname:'',
+		      	err_lname:'',
+		      	err_mail:'',
+		      	err_pass:'',
+		      	err_vpass:'',
+		      	err_reg:''
+		      },
+		      reg_done:false
 		    }
 		   this.handleFirst = this.handleFirst.bind(this);
 		}
 
 		handleFirst(event){
+			let err = this.state.err;
 			if(event.target.value.length === 0){
-				console.log('EMpty');
+				err.err_fname = 'Please provide a first name';
+				this.setState({err:err});
 			}
 			else{
-				console.log('NOTTT EMpty');
-				this.setState({first_name:event.target.value});
+				err.err_fname = '';
+				this.setState({
+				first_name:event.target.value.trim(),err:err});
 			}
 		}
 
+		handleLast = (e) => {
+			let err = this.state.err;
+			if(e.target.value.length === 0){
+				err.err_lname = 'Please provide a last name'
+				this.setState({err:err});
+			}
+			else{
+				err.err_lname = '';
+				this.setState({
+				last_name:e.target.value.trim(),err:err});
+			}
+		}
+
+		handleMail = (event) => {
+				const mail = event.target.value;
+				let err = this.state.err;
+				if(mail.length === 0){
+					err.err_mail ='Please provide a email';
+					this.setState({err:err});
+				}
+				else{
+					const mailReg = (/^[\S]+@[\S]+\.[\S]{2,}$/).test(mail);
+					if(mailReg){
+						err.err_mail = '';
+						this.setState({email:mail.trim(),err:err});
+					}
+					else{
+						err.err_mail = 'Please enter a valid email'
+						this.setState({email:mail.trim(),err:err});	
+					}
+				}
+		}
+
+		handlePass = (event) => {
+			const pass = event.target.value;
+			let err = this.state.err;
+			if(pass.length === 0){
+				err.err_pass ='Please provide a password';
+				this.setState({err:err});
+			}
+			else{
+				const pwdReg = (/(?=\S*\d)[\S\d]{8,}/).test(pass);
+				if(pwdReg){
+					err.err_pass = '';	
+					this.setState({password:pass,err:err});
+				}
+				else{
+					err.err_pass = 'Please enter a valid password';
+					this.setState({password:pass,err:err});
+				}
+			}
+		}
+
+		handleVpass = (e) => {
+			const vpass = e.target.value;
+			let err = this.state.err;
+			if(vpass.length === 0){
+				err.err_vpass = 'Please provide the confirm password';
+				this.setState({err:err});
+			}
+			else{
+				if(this.state.password === vpass){
+					err.err_vpass = '';
+					this.setState({conf_pass:vpass,err:err});
+				}
+				else{
+					err.err_vpass = 'Please enter the same password as above';
+					this.setState({conf_pass:vpass,err:err});
+				}
+			}
+		}
+
+		handleSubmit = (e) => {
+			console.log('States is ',this.state);			
+			let flag = true;
+			let state = this.state;
+			let userInfo = {};			
+			for(let key in state){
+				if(key === 'err'){
+					let errObj = this.state.err;
+					for(let errKey in errObj){
+						if(errObj[errKey].length !== 0){
+							flag = false;
+						}
+					}
+				}
+				else if(this.state[key].length === 0){
+						flag = false;
+				}
+				else{
+					userInfo[key] = this.state[key];
+				}
+			}
+			if(flag){
+				delete userInfo.conf_pass;
+				const pass = userInfo.password;
+				delete userInfo.password;
+				delete userInfo.reg_done;
+				console.log('USer is ',userInfo);
+				console.log('URLis',wsUrl+'/users/'+this.state.email+'?pw='+this.state.password);
+				axios.put(wsUrl+'/users/'+this.state.email+'?pw='+this.state.password,userInfo,{ maxRedirects: 0 }).
+				then((response) => {
+					console.log('Res is ',response.data);
+					if(response.data.status === 'CREATED'){
+						localStorage.setItem(userInfo.email, response.data.authToken);
+						this.setState({reg_done:true});
+					}
+				}).catch((err) => {
+					err = err.toString();
+					if(err.includes('401')){
+						let err = this.state.err;
+						err.err_reg = 'Existing User.Use different email';
+						this.setState({err:err});
+					}
+				});	
+			}else{
+				let err = this.state.err;
+				err.err_reg = 'Please specify all valid inputs';
+				this.setState({err:err});
+			}
+			e.preventDefault();
+		}
+
+		logout = (e) => {
+			localStorage.removeItem(this.state.email);
+		}
+
 		render(){
+			const ifReg = this.state.reg_done;
+			const ifNotReg = !ifReg;
 			return (
-				<form>
+				<div>
+				{ifNotReg &&
+				<form onSubmit={this.handleSubmit}>
 					<label>
 						First Name &nbsp;
 						<input type="text" name="fname" onBlur={this.handleFirst}/>
-					</label> <span style={{color: 'red'}}>{this.state.mail_err}</span><br/> <br/>
+					</label> <span style={{color: 'red'}}>{this.state.err.err_fname}</span><br/> <br/>
 					<label>
 						Last Name &nbsp;
-						<input type="text" name="lname" />
-					</label> <span style={{color: 'red'}}>{this.state.mail_err}</span><br/> <br/>
+						<input type="text" name="lname" onBlur={this.handleLast} />
+					</label> <span style={{color: 'red'}}>{this.state.err.err_lname}</span><br/> <br/>
 					<label> Email &nbsp;
-						<input type="email" name="mail"/>
-					</label> <span style={{color: 'red'}}>{this.state.mail_err}</span> <br/> <br/>
+						<input type="email" name="mail" onBlur={this.handleMail}/>
+					</label> <span style={{color: 'red'}}>{this.state.err.err_mail}</span> <br/> <br/>
 					<label> Password &nbsp;
-						<input type="password" name="pwd"/>
-					</label> <span style={{color: 'red'}}>{this.state.mail_err}</span> <br/> <br/>
+						<input type="password" name="pwd" onBlur={this.handlePass}/>
+					</label> <span style={{color: 'red'}}>{this.state.err.err_pass}</span> <br/> <br/>
 					<label>
 					Confirm Password &nbsp;
-					<input type="password" name="pwd_confirm" />
-					</label> <span style={{color: 'red'}}>{this.state.mail_err}</span> <br/> <br/>
-					<input type="submit" value="Register"/>	
+					<input type="password" name="pwd_confirm" onBlur={this.handleVpass}/>
+					</label> <span style={{color: 'red'}}>{this.state.err.err_vpass}</span> <br/> <br/>
+					<input type="submit" value="Register" />	<br/> <br/>
+					<a href="">Click here to go to Login Page</a> <br/>
+					<div style={{color: 'red'}}>{this.state.err.err_reg}</div>
 				</form>
+				}
+				{ifReg &&
+					<div>
+						<p > First Name : {this.state.first_name}</p> &nbsp; 
+						<p > Last Name : {this.state.last_name}</p> &nbsp; 
+						<a href="" onClick={this.logout}>Logout</a>
+					</div>
+				}
+				</div>
 				);
 		}
 	}
 
-	ReactDOM.render(
-		<RegisterForm />,
+		ReactDOM.render(
+		<LoginForm />,
 		document.getElementById('app')
 		);
 
