@@ -109,7 +109,7 @@
 		}
 
 		logout = (e) => {
-			localStorage.removeItem(this.state.email);
+			localStorage.clear();
 		}
 
 		navigate = (e) => {
@@ -153,13 +153,15 @@
 			localStorage.clear();
 		}
 
-		checkUser = (mail,tokenIn) => {
+		checkUser = (mailIn,tokenIn) => {
+			const mail = mailIn || Object.keys(localStorage)[0];
 			const token = tokenIn || localStorage.getItem(mail);
-			if(token === undefined){
+			if(token === undefined || mail === undefined){
 				ReactDOM.render(
 					<LoginForm />,
 					document.getElementById('app')
 				);
+				return;
 			}
 				let config = {
 					  headers: {'Authorization': new String('Bearer '+token)}
@@ -405,7 +407,7 @@
 	}
 
 		ReactDOM.render(
-		<LoginForm />,
+		<Account />,
 		document.getElementById('app')
 		);
 
