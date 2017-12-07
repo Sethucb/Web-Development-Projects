@@ -81,26 +81,12 @@
 						console.log('Res is ',response.data);
 						try{
 							localStorage.setItem(this.state.email,response.data.authToken);
-							this.setState({log_in:true});
-							const token = localStorage.getItem(this.state.email);
-							let config = {
-								  headers: {'Authorization': new String('Bearer '+token)}
-								};
-							axios.get(wsUrl+'/users/'+this.state.email,config).
-								then((response) => {
-									let data = response.data;
-									console.log('Get is ',data);
-									const user = {};
-									let fname = Object.keys(data)[0];
-									let lname = Object.keys(data)[1];
-									user.fname = data[fname];
-									user.lname = data[lname];
-									console.log('USR is ',user);
-									this.setState({user:user});
-								}).
-									catch((err) => {
-										console.log('Err is ',err);
-									});
+							const mailAcc = this.state.email;							
+							ReactDOM.render(
+								<Account mail={mailAcc} token={response.data.authToken}/>,
+								document.getElementById('app')
+							);
+							return;
 						}catch(err){
 							console.log('Err is ',err);
 						}
@@ -108,7 +94,6 @@
 					catch((err) => {
 						err = err.toString();
 						if(err.includes('401')){
-							console.log('404040401010101');
 							this.setState({log_err:'Unauthorised user'});
 						}
 						else if(err.includes('404')){
@@ -127,13 +112,16 @@
 			localStorage.removeItem(this.state.email);
 		}
 
+		navigate = (e) => {
+			ReactDOM.render(
+				<RegisterForm />,
+				document.getElementById('app')
+			);
+			e.preventDefault();
+		}
 
 		render(){
-		const ifLogged = this.state.log_in;
-		const ifNotLogged = !ifLogged;
 			return (
-				<div>
-					{ifNotLogged &&
 					<form onSubmit={this.handleSubmit}>
 						<label> Email &nbsp;
 							<input type="mail" onBlur={this.handleMail} />
@@ -143,17 +131,62 @@
 							<span style={{color: 'red'}}>{this.state.pwd_err}</span>
 						</label> <br/> <br/>
 						<input type="submit" value="Login"/> <br/> <br/>
-						<a href="" >Click here to go to Register Page</a>
+						<a href="" onClick={this.navigate}>Click here to go to Register Page</a>
 						<div style={{color: 'red'}}>{this.state.log_err}</div>
 					</form>
-					}
-					{ifLogged &&
-						<div>
-						<p > First Name : {this.state.user.fname}</p> &nbsp; 
-						<p > Last Name : {this.state.user.lname}</p> &nbsp; 
+			);
+		}
+	}
+
+	class Account extends React.Component{
+		constructor(props){
+			super(props);
+			this.props = props;
+			this.state = {
+				fname:'',
+				lname:''
+			};
+			this.checkUser(this.props.mail,this.props.token);
+		}
+
+		logout = (e) => {
+			localStorage.clear();
+		}
+
+		checkUser = (mail,tokenIn) => {
+			const token = tokenIn || localStorage.getItem(mail);
+			if(token === undefined){
+				ReactDOM.render(
+					<LoginForm />,
+					document.getElementById('app')
+				);
+			}
+				let config = {
+					  headers: {'Authorization': new String('Bearer '+token)}
+					};
+				axios.get(wsUrl+'/users/'+mail,config).
+					then((response) => {
+						let data = response.data;
+						console.log('Get is ',data);
+						const user = {};
+						let fname = Object.keys(data)[0];
+						let lname = Object.keys(data)[1];
+						this.setState({fname: data[fname]});
+						this.setState({lname: data[lname]});
+						return;
+					}).
+						catch((err) => {
+							console.log('Err is ',err);
+						});
+		}
+
+		render(){
+		console.log('Props is ',this.props);
+			return (
+				<div>
+						<p > First Name : {this.state.fname}</p> &nbsp; 
+						<p > Last Name : {this.state.lname} </p> &nbsp; 
 						<a href="" onClick={this.logout}>Logout</a>
-						</div>
-					}
 				</div>
 			);
 		}
@@ -175,8 +208,7 @@
 		      	err_pass:'',
 		      	err_vpass:'',
 		      	err_reg:''
-		      },
-		      reg_done:false
+		      }
 		    }
 		   this.handleFirst = this.handleFirst.bind(this);
 		}
@@ -267,7 +299,10 @@
 		}
 
 		handleSubmit = (e) => {
-			console.log('States is ',this.state);			
+			console.log('States is ',this.state);
+			let err = this.state.err;
+			err.err_reg = '';
+			this.setState({err:err});
 			let flag = true;
 			let state = this.state;
 			let userInfo = {};			
@@ -275,9 +310,9 @@
 				if(key === 'err'){
 					let errObj = this.state.err;
 					for(let errKey in errObj){
-						if(errObj[errKey].length !== 0){
-							flag = false;
-						}
+							if(errObj[errKey].length !== 0){
+								flag = false;
+							}
 					}
 				}
 				else if(this.state[key].length === 0){
@@ -287,19 +322,23 @@
 					userInfo[key] = this.state[key];
 				}
 			}
+			console.log('Flag is ',flag);
 			if(flag){
 				delete userInfo.conf_pass;
 				const pass = userInfo.password;
 				delete userInfo.password;
 				delete userInfo.reg_done;
 				console.log('USer is ',userInfo);
-				console.log('URLis',wsUrl+'/users/'+this.state.email+'?pw='+this.state.password);
 				axios.put(wsUrl+'/users/'+this.state.email+'?pw='+this.state.password,userInfo,{ maxRedirects: 0 }).
 				then((response) => {
 					console.log('Res is ',response.data);
 					if(response.data.status === 'CREATED'){
 						localStorage.setItem(userInfo.email, response.data.authToken);
 						this.setState({reg_done:true});
+						ReactDOM.render(
+								<Account mail={userInfo.email} token={response.data.authToken}/>,
+								document.getElementById('app')
+						);
 					}
 				}).catch((err) => {
 					err = err.toString();
@@ -309,7 +348,8 @@
 						this.setState({err:err});
 					}
 				});	
-			}else{
+			}
+			else{
 				let err = this.state.err;
 				err.err_reg = 'Please specify all valid inputs';
 				this.setState({err:err});
@@ -318,15 +358,25 @@
 		}
 
 		logout = (e) => {
-			localStorage.removeItem(this.state.email);
+			localStorage.clear();
+			ReactDOM.render(
+					<LoginForm />,
+					document.getElementById('app')
+				);
+		}
+
+		navigate = (e) => {
+			ReactDOM.render(
+				<LoginForm />,
+				document.getElementById('app')
+			);
+			e.preventDefault();
 		}
 
 		render(){
 			const ifReg = this.state.reg_done;
 			const ifNotReg = !ifReg;
 			return (
-				<div>
-				{ifNotReg &&
 				<form onSubmit={this.handleSubmit}>
 					<label>
 						First Name &nbsp;
@@ -347,18 +397,9 @@
 					<input type="password" name="pwd_confirm" onBlur={this.handleVpass}/>
 					</label> <span style={{color: 'red'}}>{this.state.err.err_vpass}</span> <br/> <br/>
 					<input type="submit" value="Register" />	<br/> <br/>
-					<a href="">Click here to go to Login Page</a> <br/>
+					<a href="" onClick={this.navigate}>Click here to go to Login Page</a> <br/>
 					<div style={{color: 'red'}}>{this.state.err.err_reg}</div>
 				</form>
-				}
-				{ifReg &&
-					<div>
-						<p > First Name : {this.state.first_name}</p> &nbsp; 
-						<p > Last Name : {this.state.last_name}</p> &nbsp; 
-						<a href="" onClick={this.logout}>Logout</a>
-					</div>
-				}
-				</div>
 				);
 		}
 	}
