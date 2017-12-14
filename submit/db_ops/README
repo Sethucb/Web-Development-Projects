@@ -1,5 +1,205 @@
-Name:	   Sethu Madhavan	
-B-Number:  B00663273
-Email:     smadhav2@binghamton.edu
-
 The project is completed.
+
+Question:
+
+          Aims of This Project
+          ====================
+
+The aims of this project are as follows:
+
+  + To gain familiarity with the programming environment you will
+    be using for this course.
+
+  + To provide experience with writing a non-trivial JavaScript
+    program.
+
+  + To understand the use and limitations of using aynchronous
+    callbacks.
+
+                       Specifications
+         ==============
+
+
+Write a command-line nodejs program which is invoked as:
+
+```
+$ db_ops.js DB_URL OP
+```
+
+`DB_URL` is the URL for a mongo database instance and `OP` is a JSON
+string
+
+`OP` specifies the .<https://docs.mongodb.com/manual/crud/> CRUD
+operation which is being performed on the database specified by
+`DB_URL`.  It must have the following top-level members:
+
+  : op :
+    Must have a value which must be one of `"create"`, `"read"`,
+    `"update"` or `"delete"`.
+
+  :collection:
+    Must specify the name of the collection on which the operation
+    specified by `op` is performed.
+
+
+Additionally, `OP` may also have a top-level member `args` with
+specific form depending on the value of `op`.  Specifically,
+`args` must be specified as follows:
+
+:When `op` is `create`:
+  `args` is mandatory and must be a non-empty list containing JSON
+   objects to be inserted into the collection.
+
+:When `op` is `read`, `update` or `delete`:
+  `args` is optional and should default to `{}`.  If given,
+  it should specify a .<https://docs.mongodb.com/manual/reference/method/db.collection.find/#db.collection.find> query for a mongo-db `find()` command.
+  
+
+When `op` is `update`, `OP` must contain an additional top-level member
+`fn`.  It must specify a 2-element JSON list specifying a mapper function
+used for transforming the JSON elements selected by the `args` specifier
+before updating the collection.  Specifically, the first element of the list
+must be a string containing a js identifier specifying the parameter name
+for the mapper function and the second element of the list must be a string
+containing the body of the mapper function.
+
+The action taken by the program depends on the `op` field of the `OP`
+argument to the program.
+
+  :create:
+    The json objects specified by `args` are added to the specified collection
+    in the database.
+
+  :read:
+    The objects selected from the collection by the query specified by
+    `args` are listed on standard output using `console.log()`.
+
+  :update:
+    The objects selected from the collection by the query specified by
+    `args` are updated in the collection after transformation by
+    the mapper function specified by `fn`.
+
+  :delete:
+    The objects selected from the collection by the query specified by
+    `args` are deleted from the collection.
+
+Note that all commands other than `read` return silently on success.
+
+The program should attempt to do a reasonable job of error detection.
+When an error is detected, it may report the error either by a
+exception trace or by a suitable message printed on standard error
+(using `console.error()`).
+
+
+      A Sample Log
+      ============
+
+An annotated log of the program in operation is shown below.  The log
+shows the manipulation of some data within the `test` collection in
+the `test_db` database of a mongo-db installation on the localhost
+running on the default port.
+
+Since it is tedious to repeatedly type JSON at the command-line, some
+of the JSON is stored in files and spliced into the command-line using
+backquotes.  Note also that special characters within the JSON must be
+protected from the shell by quoting the JSON either using
+single-quotes or double-quotes (the latter when splicing using
+backquotes).
+
+```
+#create env var for DB URL (use setenv URL mongodb... for csh variants).
+$ export URL=mongodb://localhost:27017/test_db
+
+#run mongo shell to show test collection in db is currently empty
+$ mongo --eval 'db.test.find({})' test_db
+MongoDB shell version: 3.2.11
+connecting to: test_db
+
+#list out file to be used for inserting entries
+$ cat create.json
+{
+  "op": "create",
+  "collection": "test",
+  "args": [
+    { "a": 1 },
+    { "b": 2 },
+    { "c": 3 }
+  ]
+}
+
+#add entries to test
+$ ./db_ops.js $URL "`cat create.json`"
+
+#run mongo shell to show entries were inserted
+$ mongo --eval 'db.test.find({})' test_db
+MongoDB shell version: 3.2.11
+connecting to: test_db
+{ "_id" : ObjectId("59ac8f45557cf41ebdacaff1"), "a" : 1 }
+{ "_id" : ObjectId("59ac8f45557cf41ebdacaff2"), "b" : 2 }
+{ "_id" : ObjectId("59ac8f45557cf41ebdacaff3"), "c" : 3 }
+
+#use a read op to show entries inserted
+$ ./db_ops.js $URL '{"op": "read", "collection": "test" }'
+{ _id: 59ac8f45557cf41ebdacaff1, a: 1 }
+{ _id: 59ac8f45557cf41ebdacaff2, b: 2 }
+{ _id: 59ac8f45557cf41ebdacaff3, c: 3 }
+
+#filter read to only select {a: 1} entry
+ ./db_ops.js $URL \
+   '{"op": "read", "collection": "test", "args": { "a": 1 } }'
+{ _id: 59ac8f45557cf41ebdacaff1, a: 1 }
+
+#no results if we filter using {a: 2}
+$ ./db_ops.js $URL \
+  '{"op": "read", "collection": "test", "args": { "a": 2 } }'
+
+#delete {a: 1} entry
+$ ./db_ops.js $URL \
+  '{"op": "delete", "collection": "test", "args": { "a": 1 } }'
+
+#use mongo shell to verify entry deleted
+$ mongo --eval 'db.test.find({})' test_db
+MongoDB shell version: 3.2.11
+connecting to: test_db
+{ "_id" : ObjectId("59ac8f45557cf41ebdacaff2"), "b" : 2 }
+{ "_id" : ObjectId("59ac8f45557cf41ebdacaff3"), "c" : 3 }
+
+#use read op to verify entry deleted
+$ ./db_ops.js $URL '{"op": "read", "collection": "test" }'
+{ _id: 59ac8f45557cf41ebdacaff2, b: 2 }
+{ _id: 59ac8f45557cf41ebdacaff3, c: 3 }
+
+#list out file used for updating entries
+$ cat update.json
+{
+  "op": "update",
+  "collection": "test",
+  "args": { },
+  "fn": [ "x",
+         "{ return typeof(x['b']) !== 'undefined' ? { b: 42 } : x; }" ]
+}
+
+#update collection test as per update.json OP.
+$ ./db_ops.js $URL "`cat update.json`"
+
+#read test collection to verify update
+$ ./db_ops.js $URL '{"op": "read", "collection": "test" }'
+{ _id: 59ac8f45557cf41ebdacaff2, b: 42 }
+{ _id: 59ac8f45557cf41ebdacaff3, c: 3 }
+
+#use mongo shell to verify update
+$ mongo --eval 'db.test.find({})' test_db
+MongoDB shell version: 3.2.11
+connecting to: test_db
+{ "_id" : ObjectId("59ac8f45557cf41ebdacaff2"), "b" : 42 }
+{ "_id" : ObjectId("59ac8f45557cf41ebdacaff3"), "c" : 3 }
+
+#delete all entries in test collection
+$ ./db_ops.js $URL '{"op": "delete", "collection": "test" }'
+
+#read test collection to verify delete
+$ ./db_ops.js $URL '{"op": "read", "collection": "test" }'
+$
+```
+
+  
