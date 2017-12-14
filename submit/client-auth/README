@@ -1,5 +1,141 @@
-Name:	   Sethu Madhavan	
-B-Number:  B00663273
-Email:     smadhav2@binghamton.edu
-
 The project is completed.
+
+Question:
+
+          Aims of This Project
+          ====================
+
+The aims of this project are as follows:
+
+  + To build a single-page authentication web application which uses a
+    authentication web service.
+
+  + To generate HTML on the client.
+
+
+                       Specifications
+         ==============
+
+
+Set up your gitlab project so that it contains a `web-client`
+subdirectory within the top level `submit` directory.  This directory
+should contain a `index.html` file such that accessing that file using
+the `file://` protocol in a *chrome* browser should result in
+"single-page" user-authentication web application.  This application
+should use the back-end `AUTH` .<../prj3/prj3.html> "project 3" web
+service running on the URL given by the query parameter `ws-url`
+(which should default to `https://localhost:1236`).
+
+
+The application should behave as follows depending on the login status
+of the user.
+
+  + If the user is not logged in, the application should display
+    a login form (with a link to a registration form).
+
+  + If the user is logged in, the application should display account
+    information for the user (with a logout button).
+
+The different forms shown to the user will be very similar to the pages
+in your previous project:
+
+  :Login Form:
+    The login form must provide the following suitably labelled input
+    controls:
+
+      + An input field for an email address.
+
+      + An input field for a password.
+
+      + A "Login" submit button.
+
+      + A link to the "Registration" form.
+
+    Input fields should be validated as soon as possible, usually when
+    the user leaves the field.  If validation fails, a suitable error
+    message should be displayed on the form.
+
+    When the form is submitted using the "Login" button, the program
+    should again validate all the input fields:
+
+      + None of the input fields should be empty.
+
+      + The email address should look like a reasonable email address.
+
+    If the validation succeeds, the program should use the `AUTH` web
+    service to set up a login session for the browser which submitted
+    the request and replace the login form with the "Account" info.
+
+    If either the login web service or the validation fails, the
+    program should continue displaying the login form with suitable
+    error messages added and all user input retained.
+
+  :Registration Form:
+    The registration page must provide the following suitably
+    labelled input controls:
+
+      + An input field for a first name.
+
+      + An input field for a last name.
+
+      + An input field for an email address.
+
+      + An input field for a password.
+
+      + An input field for password confirmation.
+
+      + A "Register" submit button.
+
+      + A link to the "Login" page.
+
+    Input fields should be validated as soon as possible, usually when
+    the user leaves the field.  If validation fails, a suitable error
+    message should be displayed on the form.
+
+    When the form is submitted using the "Register" button, the program
+    should again validate the input fields:
+
+      + None of the input fields should be empty.
+      
+      + The email address should look like a reasonable email address.
+
+      + The password should consist of at least 8 characters none of
+        which is a whitespace character and at least one of which is
+  a digit.
+
+      + The value for the password confirmation field must match
+        the password field.
+
+    If the validation succeeds, the program should use the `AUTH`
+    registration web service to create a registration corresponding to
+    the submitted information and set up a login session for the
+    browser which submitted the request and replace the registration
+    form with the "Account" info.
+
+    If either the `AUTH` registration web service or the validation
+    fails, the program should continue displaying the registration
+    form with suitable error messages added and all user input
+    retained.
+
+  :Account Info:
+    The account info should display suitably labelled first name and
+    last name from the registration corresponding to the current login
+    session.
+
+    It should also contain a `Logout` button such that clicking that
+    button terminates the current login session and displays the
+    "Login" form.
+
+Your application should run as a single-page web application with
+no requests made to the web server which served your `index.html`
+page after the initial page load.
+
+Your web application must meet the following additional requirements:
+
+  + Leading and trailing whitespace should be ignored for all input fields.
+
+  + A reasonable email address must look like "user" .- `@` .-
+    "domain" where "user" and "domain" can be arbitrary non-empty
+    strings.
+
+
